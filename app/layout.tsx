@@ -1,0 +1,34 @@
+import type { Metadata } from "next";
+import { Inter, Outfit } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Recipe Remixer – AI-Powered Recipe Generator",
+  description:
+    "Enter the ingredients you have on hand and let AI craft delicious, creative recipes just for you. Recipe Remixer turns pantry staples into culinary inspiration.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`${inter.variable} ${outfit.variable} h-full`}
+    >
+      <body className="min-h-full flex flex-col antialiased">{children}</body>
+    </html>
+  );
+}
