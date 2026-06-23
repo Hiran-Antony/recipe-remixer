@@ -1,12 +1,35 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 
-/* ─── Quick-pick ingredient suggestions ─── */
-const SUGGESTIONS = [
-  "🍗 Chicken", "🥦 Broccoli", "🧄 Garlic", "🍅 Tomatoes",
-  "🥚 Eggs", "🧀 Cheese", "🍋 Lemon", "🌶️ Chili",
-  "🥕 Carrots", "🧅 Onion", "🫒 Olive oil", "🌿 Basil",
+const SoftAurora = dynamic(() => import("@/components/SoftAurora"), {
+  ssr: false,
+});
+
+/* ─── Categorized ingredient suggestions ─── */
+const CATEGORIZED_SUGGESTIONS = [
+  {
+    category: "🥩 Protein",
+    items: ["🍗 Chicken", "🥚 Eggs", "🐟 Fish", "🥩 Beef", "🧊 Tofu", "🍤 Shrimp", "🧀 Paneer"]
+  },
+  {
+    category: "🥦 Vegetables",
+    items: ["🥦 Broccoli", "🍅 Tomatoes", "🥕 Carrots", "🧅 Onion", "🥬 Spinach", "🫑 Capsicum", "🥔 Potato", "🍄 Mushroom", "🌽 Corn"]
+  },
+  {
+    category: "🧄 Flavours",
+    items: ["🧄 Garlic", "🌶️ Chili", "🌿 Basil", "🫚 Ginger", "🌱 Cumin", "🏵️ Turmeric", "🌿 Coriander"]
+  },
+  {
+    category: "🧀 Dairy",
+    items: ["🧀 Cheese", "🧈 Butter", "🥛 Milk", "🍦 Cream", "🥣 Yogurt"]
+  },
+  {
+    category: "🫒 Oils & Others",
+    items: ["🫒 Olive oil", "🍋 Lemon", "🥥 Coconut oil", "🧉 Soy sauce", "🍯 Honey"]
+  }
 ];
 
 /* ─── Feature highlight cards ─── */
@@ -36,40 +59,67 @@ const FEATURES = [
 
 export default function HomePage() {
   const [ingredients, setIngredients] = useState("");
-  const [chips, setChips] = useState<string[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [totalSaved, setTotalSaved] = useState<number | null>(null);
+  const router = useRouter();
 
-  /* Add a quick-pick chip to the textarea */
+  useEffect(() => {
+    fetch('/api/recipes')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setTotalSaved(data.data.length);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const currentIngredients = ingredients
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+
+  /* Add or remove a quick-pick chip from the textarea */
   const addChip = (label: string) => {
     const clean = label.replace(/^\S+\s/, ""); // strip emoji
-    setChips((prev) => {
-      if (prev.includes(clean)) return prev;
-      return [...prev, clean];
-    });
-    setIngredients((prev) => {
-      const existing = prev
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      if (existing.map((s) => s.toLowerCase()).includes(clean.toLowerCase()))
-        return prev;
-      const joined = [...existing, clean].join(", ");
-      return joined;
-    });
+    const isExisting = currentIngredients.includes(clean.toLowerCase());
+
+    const existingRaw = ingredients
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (isExisting) {
+      // Remove it
+      const newIngredients = existingRaw.filter(
+        (s) => s.toLowerCase() !== clean.toLowerCase()
+      );
+      setIngredients(newIngredients.join(", "));
+    } else {
+      // Add it
+      setIngredients([...existingRaw, clean].join(", "));
+    }
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = ingredients.trim();
     if (!trimmed) return;
-    // Placeholder: will wire up AI call in a later step
-    alert(`🍳 Finding recipes for: ${trimmed}`);
+    setIsGenerating(true);
+    router.push(`/results?ingredients=${encodeURIComponent(trimmed)}`);
   };
 
   return (
     <>
-      {/* Floating ambient orbs */}
-      <div className="orb-a" aria-hidden="true" />
-      <div className="orb-b" aria-hidden="true" />
+      <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0 }}>
+        <SoftAurora
+          speed={0.4}
+          color1="#f97316"
+          color2="#a855f7"
+          noiseFrequency={2.0}
+          bandHeight={0.6}
+        />
+      </div>
 
       <main
         style={{
@@ -79,8 +129,7 @@ export default function HomePage() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          padding: "2rem 1rem",
+          padding: "clamp(4rem, 10vh, 8rem) 1rem 4rem",
         }}
       >
         {/* ── Hero section ── */}
@@ -148,6 +197,13 @@ export default function HomePage() {
             . Transform your pantry into extraordinary meals in seconds.
           </p>
 
+          {/* Total generated count */}
+          {totalSaved !== null && (
+            <div className="animate-fade-in-up delay-200" style={{ marginTop: "-0.5rem", fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>
+              Join others who have saved <span style={{ color: "#a855f7", fontWeight: 700 }}>{totalSaved}</span> recipes!
+            </div>
+          )}
+
           {/* ── Glass card / form ── */}
           <div
             className="glass-card animate-fade-in-up delay-300"
@@ -209,63 +265,77 @@ export default function HomePage() {
               <button
                 id="find-recipes-btn"
                 type="submit"
+                disabled={isGenerating}
                 className="btn-primary"
                 aria-label="Find recipes based on your ingredients"
               >
-                <span style={{ fontSize: "1.1rem" }}>🍳</span>
-                Find Recipes
+                {isGenerating ? (
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                    <span className="animate-spin" style={{ fontSize: "1.1rem", display: "inline-block" }}>🍳</span>
+                    Cooking up ideas...
+                  </span>
+                ) : (
+                  <>
+                    <span style={{ fontSize: "1.1rem" }}>🍳</span>
+                    Find Recipes
+                  </>
+                )}
               </button>
             </form>
 
             {/* Quick-pick chips */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-              <span
-                style={{
-                  fontSize: "0.78rem",
-                  color: "var(--text-muted)",
-                  textAlign: "left",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  fontWeight: 600,
-                }}
-              >
-                Quick add
-              </span>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "0.5rem",
-                }}
-                role="list"
-                aria-label="Suggested ingredients"
-              >
-                {SUGGESTIONS.map((s) => {
-                  const clean = s.replace(/^\S+\s/, "");
-                  const active = chips.includes(clean);
-                  return (
-                    <button
-                      key={s}
-                      type="button"
-                      role="listitem"
-                      onClick={() => addChip(s)}
-                      className="chip"
-                      aria-pressed={active}
-                      style={
-                        active
-                          ? {
-                              background: "rgba(249,115,22,0.15)",
-                              borderColor: "rgba(249,115,22,0.4)",
-                              color: "#fb923c",
-                            }
-                          : undefined
-                      }
-                    >
-                      {s}
-                    </button>
-                  );
-                })}
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+              {CATEGORIZED_SUGGESTIONS.map((cat) => (
+                <div key={cat.category} style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  <span
+                    style={{
+                      fontSize: "0.78rem",
+                      color: "var(--text-muted)",
+                      textAlign: "left",
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {cat.category}
+                  </span>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "0.5rem",
+                    }}
+                    role="list"
+                    aria-label={`Suggested ${cat.category}`}
+                  >
+                    {cat.items.map((s) => {
+                      const clean = s.replace(/^\S+\s/, "");
+                      const active = currentIngredients.includes(clean.toLowerCase());
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          role="listitem"
+                          onClick={() => addChip(s)}
+                          className="chip"
+                          aria-pressed={active}
+                          style={
+                            active
+                              ? {
+                                  background: "rgba(249,115,22,0.15)",
+                                  borderColor: "rgba(249,115,22,0.4)",
+                                  color: "#fb923c",
+                                }
+                              : undefined
+                          }
+                        >
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
