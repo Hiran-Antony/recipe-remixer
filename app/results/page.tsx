@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -13,7 +13,7 @@ interface RecipeData {
   difficulty: "Easy" | "Medium" | "Hard";
 }
 
-export default function ResultsPage() {
+function ResultsContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -196,5 +196,20 @@ export default function ResultsPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={
+      <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+        <div className="animate-spin" style={{ fontSize: "3rem", marginBottom: "1rem" }}>🍳</div>
+        <h2 className="shimmer-text" style={{ fontFamily: "var(--font-outfit), sans-serif", fontSize: "1.5rem" }}>
+          Loading your experience...
+        </h2>
+      </main>
+    }>
+      <ResultsContent />
+    </Suspense>
   );
 }
