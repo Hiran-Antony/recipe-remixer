@@ -233,3 +233,31 @@ body::before {
 .nav-link:hover {
   color: #f97316;
 }
+
+/* ── List animations ── */
+@keyframes listFloatIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.list-item-anim {
+  opacity: 0;
+  animation: listFloatIn 0.5s ease-out forwards;
+}
+
+.list-item-anim:hover {
+  transform: translateX(4px);
+  color: #fff;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* ── Ingredient chip hover ── */
+.ingredient-chip:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  border-color: rgba(255,255,255,0.28) !important;
+  color: #fff !important;
+}
+.ingredient-chip:active {
+  transform: scale(0.96);
+}

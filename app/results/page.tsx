@@ -9,7 +9,7 @@ interface RecipeData {
   ingredients: string[];
   steps: string[];
   cookTime: string;
-  servings: string;
+  servings: string | number;
   difficulty: "Easy" | "Medium" | "Hard";
 }
 
@@ -29,56 +29,49 @@ function ResultsContent() {
       return;
     }
 
-    const ingredientsList = ingredientsParam.split(",").map(i => i.trim());
-    
-    // Simulate AI generation delay
-    const timer = setTimeout(() => {
-      const mockRecipes: RecipeData[] = [
-        {
-          title: `Rustic ${ingredientsList[0] || "Pantry"} Skillet`,
-          ingredients: ingredientsList,
-          steps: [
-            "Prepare all ingredients by chopping them evenly.",
-            "Heat oil in a large skillet over medium-high heat.",
-            "Sauté the ingredients until golden brown.",
-            "Season with salt and pepper. Serve immediately."
-          ],
-          cookTime: "25 mins",
-          servings: "2",
-          difficulty: "Easy"
-        },
-        {
-          title: `Creamy ${ingredientsList[ingredientsList.length - 1] || "Mix"} Delight`,
-          ingredients: [...ingredientsList, "Heavy Cream", "Parmesan"],
-          steps: [
-            "Mix all ingredients in a bowl.",
-            "Transfer to a baking dish and cover with foil.",
-            "Bake at 375°F for 40 minutes.",
-            "Uncover and broil for 5 minutes until bubbly."
-          ],
-          cookTime: "45 mins",
-          servings: "4",
-          difficulty: "Medium"
-        },
-        {
-          title: "Ultimate Chef's Masterpiece",
-          ingredients: ingredientsList,
-          steps: [
-            "Marinate ingredients for 30 minutes.",
-            "Sear in a hot pan to lock in flavors.",
-            "Deglaze pan and create a rich reduction sauce.",
-            "Plate elegantly and garnish with fresh herbs."
-          ],
-          cookTime: "1 hr 15 mins",
-          servings: "2",
-          difficulty: "Hard"
-        }
-      ];
-      setRecipes(mockRecipes);
-      setLoading(false);
-    }, 2500);
+    let isMounted = true;
 
-    return () => clearTimeout(timer);
+    const fetchRecipes = async () => {
+      const start = Date.now();
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ingredients: ingredientsParam })
+        });
+        
+        if (!res.ok) throw new Error("Failed to generate recipes");
+        
+        const data = await res.json();
+        
+        if (!isMounted) return;
+
+        // Ensure at least 2.5s loading time for the animation
+        const elapsed = Date.now() - start;
+        const remainingDelay = Math.max(0, 2500 - elapsed);
+        
+        setTimeout(() => {
+          if (isMounted) {
+            setRecipes(data.recipes || []);
+            setLoading(false);
+          }
+        }, remainingDelay);
+      } catch (err) {
+        console.error("Error generating recipes:", err);
+        if (!isMounted) return;
+        const elapsed = Date.now() - start;
+        const remainingDelay = Math.max(0, 2500 - elapsed);
+        setTimeout(() => {
+          if (isMounted) setLoading(false);
+        }, remainingDelay);
+      }
+    };
+
+    fetchRecipes();
+
+    return () => {
+      isMounted = false;
+    };
   }, [ingredientsParam, router]);
 
   const handleSave = async (recipe: RecipeData, idx: number) => {
@@ -168,15 +161,23 @@ function ResultsContent() {
 
               <div>
                 <h3 style={{ fontSize: "0.9rem", color: "#fb923c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Ingredients</h3>
-                <ul style={{ margin: 0, paddingLeft: "1.2rem", fontSize: "0.9rem", color: "var(--text-primary)", lineHeight: 1.6 }}>
-                  {recipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
+                <ul style={{ margin: 0, paddingLeft: "1.2rem", fontSize: "0.9rem", color: "var(--text-primary)", lineHeight: 1.6, listStyleType: "disc" }}>
+                  {recipe.ingredients.map((ing, i) => (
+                    <li key={i} className="list-item-anim" style={{ animationDelay: `${i * 80}ms`, paddingLeft: "0.2rem", paddingBottom: "0.2rem" }}>
+                      {ing}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               <div>
                 <h3 style={{ fontSize: "0.9rem", color: "#fb923c", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>Steps</h3>
-                <ol style={{ margin: 0, paddingLeft: "1.2rem", fontSize: "0.9rem", color: "var(--text-primary)", lineHeight: 1.6 }}>
-                  {recipe.steps.map((step, i) => <li key={i}>{step}</li>)}
+                <ol style={{ margin: 0, paddingLeft: "1.2rem", fontSize: "0.9rem", color: "var(--text-primary)", lineHeight: 1.6, listStyleType: "decimal" }}>
+                  {recipe.steps.map((step, i) => (
+                    <li key={i} className="list-item-anim" style={{ animationDelay: `${(recipe.ingredients.length + i) * 80}ms`, paddingLeft: "0.3rem", paddingBottom: "0.4rem" }}>
+                      {step}
+                    </li>
+                  ))}
                 </ol>
               </div>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import { Providers } from "@/components/Providers";
+import ChefMascotLoader from "@/components/ChefMascotLoader";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,6 +35,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {children}
+          <ChefMascotLoader />
         </Providers>
       </body>
     </html>

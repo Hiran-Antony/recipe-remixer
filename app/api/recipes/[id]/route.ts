@@ -23,3 +23,27 @@ export async function DELETE(
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await connectToDatabase();
+    
+    const { id } = await params;
+    const body = await request.json();
+    
+    // Update the document and return the modified version
+    const updatedRecipe = await Recipe.findByIdAndUpdate(id, body, { new: true });
+    
+    if (!updatedRecipe) {
+      return NextResponse.json({ success: false, error: 'Recipe not found' }, { status: 404 });
+    }
+    
+    return NextResponse.json({ success: true, data: updatedRecipe }, { status: 200 });
+  } catch (error: any) {
+    console.error("Error updating recipe:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}

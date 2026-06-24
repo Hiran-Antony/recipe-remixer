@@ -21,6 +21,8 @@ export default function SavedRecipesPage() {
   const { data: session, status } = useSession();
   const [recipes, setRecipes] = useState<RecipeData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<RecipeData | null>(null);
 
   const fetchRecipes = async () => {
     try {
@@ -57,6 +59,37 @@ export default function SavedRecipesPage() {
       }
     } catch (err) {
       console.error("Delete error:", err);
+    }
+  };
+
+  const startEdit = (recipe: RecipeData) => {
+    setEditingId(recipe._id);
+    setEditForm(recipe);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm(null);
+  };
+
+  const saveEdit = async () => {
+    if (!editForm) return;
+    try {
+      const res = await fetch(`/api/recipes/${editForm._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRecipes(prev => prev.map(r => r._id === editForm._id ? data.data : r));
+        setEditingId(null);
+        setEditForm(null);
+      } else {
+        alert("Failed to update: " + data.error);
+      }
+    } catch (err) {
+      console.error("Update error:", err);
     }
   };
 
@@ -107,22 +140,85 @@ export default function SavedRecipesPage() {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "2rem" }}>
-            {recipes.map((recipe, idx) => (
+            {recipes.map((recipe, idx) => {
+              if (editingId === recipe._id && editForm) {
+                return (
+                  <div key={recipe._id} className="glass-card animate-fade-in-up" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <input 
+                      value={editForm.title} 
+                      onChange={e => setEditForm({...editForm, title: e.target.value})}
+                      style={{ width: "100%", padding: "0.5rem", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", borderRadius: "4px", fontSize: "1.2rem", fontFamily: "var(--font-outfit)" }}
+                      placeholder="Recipe Title"
+                    />
+                    
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <input 
+                        value={editForm.cookTime}
+                        onChange={e => setEditForm({...editForm, cookTime: e.target.value})}
+                        style={{ flex: 1, padding: "0.5rem", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", borderRadius: "4px" }}
+                        placeholder="Cook Time"
+                      />
+                      <input 
+                        value={editForm.servings}
+                        onChange={e => setEditForm({...editForm, servings: e.target.value})}
+                        style={{ flex: 1, padding: "0.5rem", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", borderRadius: "4px" }}
+                        placeholder="Servings"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.25rem", display: "block" }}>Ingredients (comma separated)</label>
+                      <textarea 
+                        value={editForm.ingredients.join(", ")}
+                        onChange={e => setEditForm({...editForm, ingredients: e.target.value.split(",").map(i => i.trim()).filter(Boolean)})}
+                        style={{ width: "100%", padding: "0.5rem", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", borderRadius: "4px", minHeight: "60px", resize: "vertical" }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.25rem", display: "block" }}>Steps (one per line)</label>
+                      <textarea 
+                        value={editForm.steps.join("\n")}
+                        onChange={e => setEditForm({...editForm, steps: e.target.value.split("\n").filter(Boolean)})}
+                        style={{ width: "100%", padding: "0.5rem", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", borderRadius: "4px", minHeight: "100px", resize: "vertical" }}
+                      />
+                    </div>
+
+                    <div style={{ display: "flex", gap: "1rem", marginTop: "auto", paddingTop: "0.5rem" }}>
+                      <button onClick={cancelEdit} style={{ flex: 1, padding: "0.5rem", background: "rgba(255,255,255,0.1)", border: "none", color: "#fff", borderRadius: "4px", cursor: "pointer", transition: "background 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,0.2)"} onMouseOut={e => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}>Cancel</button>
+                      <button onClick={saveEdit} style={{ flex: 1, padding: "0.5rem", background: "#f97316", border: "none", color: "#fff", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", transition: "background 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "#ea580c"} onMouseOut={e => e.currentTarget.style.background = "#f97316"}>Save</button>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
               <div key={recipe._id} className="glass-card animate-fade-in-up" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem", animationDelay: `${idx * 100}ms` }}>
                 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <h2 style={{ fontFamily: "var(--font-outfit), sans-serif", fontSize: "1.4rem", fontWeight: 700, margin: 0, color: "#fff", flex: 1, paddingRight: "1rem" }}>
                     {recipe.title}
                   </h2>
-                  <button 
-                    onClick={() => handleDelete(recipe._id)}
-                    style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: "1.2rem", transition: "color 0.2s" }}
-                    onMouseOver={e => e.currentTarget.style.color = "#ef4444"}
-                    onMouseOut={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}
-                    aria-label="Delete recipe"
-                  >
-                    🗑️
-                  </button>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button 
+                      onClick={() => startEdit(recipe)}
+                      style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: "1.2rem", transition: "color 0.2s" }}
+                      onMouseOver={e => e.currentTarget.style.color = "#3b82f6"}
+                      onMouseOut={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}
+                      aria-label="Edit recipe"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(recipe._id)}
+                      style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: "1.2rem", transition: "color 0.2s" }}
+                      onMouseOver={e => e.currentTarget.style.color = "#ef4444"}
+                      onMouseOut={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}
+                      aria-label="Delete recipe"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center" }}>
@@ -156,7 +252,8 @@ export default function SavedRecipesPage() {
                 </div>
                 
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
