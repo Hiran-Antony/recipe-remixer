@@ -30,12 +30,12 @@ Each recipe must have:
 }
 Return only JSON, no extra text.`;
 
-    const chatCompletion = await groq.chat.completions.create({
+    const completion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
       model: 'llama-3.3-70b-versatile',
     });
 
-    let content = chatCompletion.choices[0]?.message?.content || '[]';
+    let content = completion.choices[0]?.message?.content || '[]';
     
     // Clean markdown if present
     content = content.replace(/```json/g, '').replace(/```/g, '').trim();
