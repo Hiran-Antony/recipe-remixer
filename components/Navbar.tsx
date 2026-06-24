@@ -16,9 +16,10 @@ export default function Navbar() {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "1rem 2rem",
-        background: "rgba(7, 8, 15, 0.6)",
+        background: "rgba(7, 8, 15, 0.7)",
         backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+        boxShadow: "0 1px 0 0 rgba(249, 115, 22, 0.2)", // subtle orange gradient effect line
       }}
     >
       <Link
@@ -38,6 +39,33 @@ export default function Navbar() {
         <span style={{ fontSize: "1.2rem" }}>🍳</span>
       </Link>
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+        <Link 
+          href="/#recipe-form"
+          style={{
+            background: "linear-gradient(135deg, #f97316 0%, #db2777 100%)",
+            color: "#fff",
+            padding: "0.4rem 1rem",
+            borderRadius: "999px",
+            fontSize: "0.85rem",
+            fontWeight: 700,
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            boxShadow: "0 0 15px rgba(249,115,22,0.4)",
+            transition: "transform 0.2s, box-shadow 0.2s"
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 0 20px rgba(249,115,22,0.6)";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "0 0 15px rgba(249,115,22,0.4)";
+          }}
+        >
+          <span>✨</span> Try AI
+        </Link>
         <Link href="/" className="nav-link">
           Home
         </Link>
@@ -47,6 +75,37 @@ export default function Navbar() {
               Saved Recipes
             </Link>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginLeft: "1rem", paddingLeft: "1rem", borderLeft: "1px solid rgba(255,255,255,0.15)" }}>
+              {/* Notification Bell */}
+              <button 
+                aria-label="Notifications"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.4rem",
+                  transition: "color 0.2s"
+                }}
+                onMouseOver={(e) => e.currentTarget.style.color = "#fff"}
+                onMouseOut={(e) => e.currentTarget.style.color = "var(--text-muted)"}
+              >
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span style={{
+                  position: "absolute",
+                  top: 4,
+                  right: 4,
+                  width: 8,
+                  height: 8,
+                  background: "#ef4444",
+                  borderRadius: "50%",
+                  border: "2px solid rgba(7, 8, 15, 1)"
+                }}></span>
+              </button>
+              
               <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
                 Hi, <span style={{ color: "#fff", fontWeight: 600 }}>{session.user?.name?.split(' ')[0]}</span>
               </span>

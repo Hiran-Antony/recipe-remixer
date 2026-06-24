@@ -357,28 +357,6 @@ export default function ChefMascot() {
   const [lineVisible, setLineVisible] = useState(false);
   const [reaction, setReaction] = useState<Reaction>("happy");
   const [lineData, setLineData] = useState({ x1: 0, y1: 0, x2: 0, y2: 0, cx: 0, cy: 0 });
-  const [bubbleVisible, setBubbleVisible] = useState(false);
-  const [hoveringChef, setHoveringChef] = useState(false);
-  const bubbleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setBubbleVisible(true), 800);
-    const t2 = setTimeout(() => { if (!hoveringChef) setBubbleVisible(false); }, 4200);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleMouseEnter = useCallback(() => {
-    setHoveringChef(true);
-    setBubbleVisible(true);
-    if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setHoveringChef(false);
-    bubbleTimerRef.current = setTimeout(() => setBubbleVisible(false), 1500);
-  }, []);
-
   const getHeadAnchor = useCallback(() => {
     const el = chefRef.current;
     if (!el) return { x: 0, y: 0 };
@@ -390,8 +368,7 @@ export default function ChefMascot() {
     ({ first, active, movement: [mx, my], event }) => {
       event.preventDefault?.();
       if (first) { 
-        setLineVisible(true); 
-        setBubbleVisible(false);
+        setLineVisible(true);
         const reactions: Reaction[] = ["sad", "angry", "surprised", "silly"];
         setReaction(reactions[Math.floor(Math.random() * reactions.length)]);
       }
@@ -445,8 +422,6 @@ export default function ChefMascot() {
       <div
         ref={chefRef}
         style={{ position: "fixed", left: 24, bottom: 0, width: CHEF_W, zIndex: 9999, userSelect: "none" }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <div className="chef-float" style={{ position: "relative" }}>
 
@@ -466,7 +441,7 @@ export default function ChefMascot() {
             whiteSpace: "nowrap",
             boxShadow: "0 4px 20px rgba(0,0,0,0.35)",
             pointerEvents: "none",
-            opacity: bubbleVisible ? 1 : 0,
+            opacity: lineVisible ? 0 : 1,
             transition: "opacity 0.3s ease",
             zIndex: 10001,
           }}>

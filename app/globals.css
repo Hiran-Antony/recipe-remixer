@@ -17,7 +17,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
-  height: 100%;
+  min-height: 100vh;
   margin: 0;
   background: var(--bg-deep);
   color: var(--text-primary);
@@ -260,4 +260,33 @@ body::before {
 }
 .ingredient-chip:active {
   transform: scale(0.96);
+}
+
+/* ── Marquee Animation ── */
+@keyframes scroll-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-container {
+  display: flex;
+  width: 200%;
+  animation: scroll-marquee 25s linear infinite;
+}
+
+.marquee-container:hover {
+  animation-play-state: paused;
+}
+
+/* ── Shimmer Skeleton ── */
+@keyframes shimmer-loader {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.skeleton-box {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer-loader 2s infinite linear;
+  border-radius: 4px;
 }

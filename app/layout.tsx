@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Providers } from "@/components/Providers";
 import ChefMascotLoader from "@/components/ChefMascotLoader";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,13 +31,26 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${outfit.variable} h-full`}
+      className={`${inter.variable} ${outfit.variable}`}
     >
-      <body className="min-h-full flex flex-col antialiased">
+      <body className="min-h-screen flex flex-col antialiased">
         <Providers>
           <Navbar />
           {children}
+          <Footer />
           <ChefMascotLoader />
+          <Toaster 
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: 'rgba(0,0,0,0.8)',
+                color: '#fff',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                fontFamily: 'var(--font-outfit)'
+              }
+            }}
+          />
         </Providers>
       </body>
     </html>

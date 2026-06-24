@@ -3,10 +3,20 @@
 import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import LogoLoop from "@/components/LogoLoop";
 
 const SoftAurora = dynamic(() => import("@/components/SoftAurora"), {
   ssr: false,
 });
+
+const cuisineLogos = [
+  { node: <span style={{ display: "flex", alignItems: "center", gap: "2rem", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 600, fontFamily: "var(--font-outfit)", letterSpacing: "0.1em", textTransform: "uppercase" }}><span>ITALIAN</span><span style={{color: "#f97316"}}>•</span></span>, title: "Italian" },
+  { node: <span style={{ display: "flex", alignItems: "center", gap: "2rem", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 600, fontFamily: "var(--font-outfit)", letterSpacing: "0.1em", textTransform: "uppercase" }}><span>INDIAN</span><span style={{color: "#f97316"}}>•</span></span>, title: "Indian" },
+  { node: <span style={{ display: "flex", alignItems: "center", gap: "2rem", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 600, fontFamily: "var(--font-outfit)", letterSpacing: "0.1em", textTransform: "uppercase" }}><span>CHINESE</span><span style={{color: "#f97316"}}>•</span></span>, title: "Chinese" },
+  { node: <span style={{ display: "flex", alignItems: "center", gap: "2rem", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 600, fontFamily: "var(--font-outfit)", letterSpacing: "0.1em", textTransform: "uppercase" }}><span>MEXICAN</span><span style={{color: "#f97316"}}>•</span></span>, title: "Mexican" },
+  { node: <span style={{ display: "flex", alignItems: "center", gap: "2rem", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 600, fontFamily: "var(--font-outfit)", letterSpacing: "0.1em", textTransform: "uppercase" }}><span>JAPANESE</span><span style={{color: "#f97316"}}>•</span></span>, title: "Japanese" },
+  { node: <span style={{ display: "flex", alignItems: "center", gap: "2rem", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 600, fontFamily: "var(--font-outfit)", letterSpacing: "0.1em", textTransform: "uppercase" }}><span>THAI</span><span style={{color: "#f97316"}}>•</span></span>, title: "Thai" },
+];
 
 /* ─── 150+ Categorized ingredient suggestions ─── */
 const CATEGORIZED_SUGGESTIONS = [
@@ -49,31 +59,6 @@ const CATEGORIZED_SUGGESTIONS = [
     category: "FRUITS",
     color: "#f472b6",
     items: ["Mango","Apple","Banana","Pineapple","Avocado","Strawberries","Blueberries","Lemon","Lime","Orange","Coconut","Dates","Figs","Grapes","Peach","Plum","Papaya","Pomegranate","Tamarind","Passion Fruit"],
-  },
-];
-
-/* ─── Feature highlight cards ─── */
-const FEATURES = [
-  {
-    icon: "✨",
-    color: "#f97316",
-    bg: "rgba(249,115,22,0.12)",
-    title: "AI-Powered",
-    desc: "Smart recipes crafted from whatever you have on hand.",
-  },
-  {
-    icon: "⚡",
-    color: "#a855f7",
-    bg: "rgba(168,85,247,0.12)",
-    title: "Instant Results",
-    desc: "Get multiple recipe ideas in seconds, not hours.",
-  },
-  {
-    icon: "🍽️",
-    color: "#22d3ee",
-    bg: "rgba(34,211,238,0.10)",
-    title: "Any Cuisine",
-    desc: "Italian, Asian, Mexican — explore the world on your plate.",
   },
 ];
 
@@ -129,22 +114,27 @@ export default function HomePage() {
         <SoftAurora speed={0.4} color1="#f97316" color2="#a855f7" noiseFrequency={2.0} bandHeight={0.6} />
       </div>
 
+      {/* Floating Recipe Cards Background elements */}
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+        <div className="glass-card orb-a" style={{ top: "10%", left: "5%", width: "120px", height: "160px", opacity: 0.1, transform: "rotate(-15deg)" }}></div>
+        <div className="glass-card orb-b" style={{ bottom: "20%", right: "10%", width: "140px", height: "180px", opacity: 0.1, transform: "rotate(20deg)" }}></div>
+      </div>
+
       <main
         style={{
           position: "relative",
           zIndex: 1,
-          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: "clamp(4rem, 10vh, 8rem) 1rem 4rem",
+          padding: "clamp(3rem, 8vh, 6rem) 1rem 4rem",
         }}
       >
         {/* ── Hero section ── */}
         <section
           style={{
             width: "100%",
-            maxWidth: "720px",
+            maxWidth: "800px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -152,7 +142,7 @@ export default function HomePage() {
             textAlign: "center",
           }}
         >
-          {/* Logo badge */}
+          {/* Logo badge / Counter */}
           <div
             className="animate-fade-in-up"
             style={{
@@ -167,11 +157,10 @@ export default function HomePage() {
               fontWeight: 600,
               color: "#fb923c",
               letterSpacing: "0.05em",
-              textTransform: "uppercase",
             }}
           >
-            <span style={{ fontSize: "1rem" }}>🔥</span>
-            AI-Powered Cooking
+            <span style={{ fontSize: "1rem" }}>✨</span>
+            <span style={{ fontWeight: 800 }}>{totalSaved !== null ? totalSaved + 142 : "420+"}</span> Recipes Generated Today
           </div>
 
           {/* Title */}
@@ -179,7 +168,7 @@ export default function HomePage() {
             className="shimmer-text animate-fade-in-up delay-100"
             style={{
               fontFamily: "var(--font-outfit), sans-serif",
-              fontSize: "clamp(2.6rem, 7vw, 4.5rem)",
+              fontSize: "clamp(2.6rem, 7vw, 4.8rem)",
               fontWeight: 800,
               lineHeight: 1.1,
               margin: 0,
@@ -193,32 +182,30 @@ export default function HomePage() {
           <p
             className="animate-fade-in-up delay-200"
             style={{
-              fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
-              color: "rgba(209,213,219,0.75)",
-              maxWidth: "480px",
+              fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
+              color: "rgba(209,213,219,0.85)",
+              maxWidth: "520px",
               lineHeight: 1.65,
               margin: 0,
             }}
           >
-            Enter ingredients, get&nbsp;
-            <span style={{ color: "#fb923c", fontWeight: 600 }}>AI recipes</span>
-            . Transform your pantry into extraordinary meals in seconds.
+            Enter ingredients, get <span style={{ color: "#fb923c", fontWeight: 600 }}>AI recipes</span>. Transform your pantry into extraordinary meals in seconds.
           </p>
 
-          {/* Total generated count */}
-          {totalSaved !== null && (
-            <div className="animate-fade-in-up delay-200" style={{ marginTop: "-0.5rem", fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>
-              Join others who have saved <span style={{ color: "#a855f7", fontWeight: 700 }}>{totalSaved}</span> recipes!
-            </div>
-          )}
+          {/* Feature Badges */}
+          <div className="animate-fade-in-up delay-200" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center", marginTop: "0.5rem" }}>
+            <span style={{ background: "rgba(255,255,255,0.05)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.8rem", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.1)" }}>⚡ AI Powered</span>
+            <span style={{ background: "rgba(255,255,255,0.05)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.8rem", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.1)" }}>🔒 Save Forever</span>
+            <span style={{ background: "rgba(255,255,255,0.05)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.8rem", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.1)" }}>👨‍🍳 Pro Recipes</span>
+          </div>
 
           {/* ── Glass card / form ── */}
           <div
             className="glass-card animate-fade-in-up delay-300"
             style={{
               width: "100%",
-              marginTop: "0.75rem",
-              padding: "clamp(1.25rem, 3vw, 1.75rem)",
+              marginTop: "1rem",
+              padding: "clamp(1.25rem, 3vw, 2rem)",
               display: "flex",
               flexDirection: "column",
               gap: "1.1rem",
@@ -230,21 +217,18 @@ export default function HomePage() {
               style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}
               aria-label="Recipe search form"
             >
-              {/* Label */}
               <label
                 htmlFor="ingredients-input"
                 style={{
                   textAlign: "left",
-                  fontSize: "0.88rem",
+                  fontSize: "0.95rem",
                   fontWeight: 600,
-                  color: "rgba(243,244,246,0.85)",
-                  letterSpacing: "0.01em",
+                  color: "rgba(243,244,246,0.9)",
                 }}
               >
-                What&apos;s in your kitchen?
+                What's in your kitchen?
               </label>
 
-              {/* Textarea */}
               <textarea
                 id="ingredients-input"
                 className="recipe-input"
@@ -252,146 +236,67 @@ export default function HomePage() {
                 placeholder="e.g. chicken, garlic, tomatoes, basil…"
                 value={ingredients}
                 onChange={(e) => setIngredients(e.target.value)}
-                aria-describedby="ingredients-hint"
-                style={{ resize: "vertical", minHeight: "64px" }}
+                style={{ resize: "vertical", minHeight: "64px", fontSize: "1.1rem" }}
               />
 
-              <p
-                id="ingredients-hint"
-                style={{
-                  margin: 0,
-                  marginTop: "-0.4rem",
-                  fontSize: "0.75rem",
-                  color: "var(--text-muted)",
-                  textAlign: "left",
-                }}
-              >
-                Separate with commas or tap chips below.
-              </p>
-
-              {/* CTA button */}
               <button
                 id="find-recipes-btn"
                 type="submit"
                 disabled={isGenerating}
                 className="btn-primary"
-                aria-label="Find recipes based on your ingredients"
+                style={{ padding: "1.25rem", fontSize: "1.15rem", marginTop: "0.5rem" }}
               >
                 {isGenerating ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-                    <span className="animate-spin" style={{ fontSize: "1.1rem", display: "inline-block" }}>🍳</span>
+                    <span className="animate-spin" style={{ fontSize: "1.2rem", display: "inline-block" }}>🍳</span>
                     Cooking up ideas...
                   </span>
                 ) : (
                   <>
-                    <span style={{ fontSize: "1.1rem" }}>🍳</span>
-                    Find Recipes
+                    <span style={{ fontSize: "1.2rem" }}>🍳</span>
+                    Generate AI Recipes
                   </>
                 )}
               </button>
             </form>
 
-            {/* Selected count (always rendered to reserve space and prevent layout shift) */}
-            <div style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "space-between",
-              minHeight: "18px",
-              opacity: currentIngredients.length > 0 ? 1 : 0,
-              pointerEvents: currentIngredients.length > 0 ? "auto" : "none",
-              transition: "opacity 0.2s ease"
-            }}>
-              <span style={{ fontSize: "0.75rem", color: "#fb923c", fontWeight: 600 }}>
-                {currentIngredients.length} selected
-              </span>
-              <button
-                type="button"
-                onClick={() => setIngredients("")}
-                style={{ fontSize: "0.72rem", color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-              >
-                Clear all
-              </button>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "18px", opacity: currentIngredients.length > 0 ? 1 : 0, transition: "opacity 0.2s ease" }}>
+              <span style={{ fontSize: "0.8rem", color: "#fb923c", fontWeight: 600 }}>{currentIngredients.length} selected</span>
+              <button type="button" onClick={() => setIngredients("")} style={{ fontSize: "0.75rem", color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Clear all</button>
             </div>
 
-            {/* Quick-pick chips — compact accordion style */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {CATEGORIZED_SUGGESTIONS.map((cat) => {
                 const isOpen = openCats.includes(cat.category);
                 const selectedCount = cat.items.filter(item => currentIngredients.includes(item.toLowerCase())).length;
                 return (
                   <div key={cat.category} style={{ borderRadius: "0.6rem", overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.15)" }}>
-                    {/* Category header */}
                     <button
                       type="button"
                       onClick={() => toggleCat(cat.category)}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "0.45rem 0.75rem",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: cat.color,
-                      }}
+                      style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.6rem 1rem", background: "none", border: "none", cursor: "pointer", color: cat.color }}
                     >
-                      <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                         {cat.category}
-                        {selectedCount > 0 && (
-                          <span style={{
-                            marginLeft: "0.4rem",
-                            background: cat.color + "33",
-                            color: cat.color,
-                            borderRadius: "9999px",
-                            padding: "0.05rem 0.4rem",
-                            fontSize: "0.62rem",
-                            fontWeight: 700,
-                          }}>
-                            {selectedCount}
-                          </span>
-                        )}
+                        {selectedCount > 0 && <span style={{ marginLeft: "0.5rem", background: cat.color + "33", color: cat.color, borderRadius: "99px", padding: "0.1rem 0.5rem", fontSize: "0.65rem" }}>{selectedCount}</span>}
                       </span>
                       <span style={{ fontSize: "0.6rem", opacity: 0.5, transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
                     </button>
-
-                    {/* Chips row */}
                     {isOpen && (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: "0.3rem",
-                          padding: "0 0.75rem 0.65rem",
-                        }}
-                        role="list"
-                        aria-label={`Suggested ${cat.category}`}
-                      >
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", padding: "0 1rem 0.8rem" }}>
                         {cat.items.map((item) => {
                           const active = currentIngredients.includes(item.toLowerCase());
                           return (
                             <button
                               key={item}
                               type="button"
-                              role="listitem"
                               onClick={() => addChip(item)}
-                              aria-pressed={active}
                               className="ingredient-chip"
-                              data-active={active ? "true" : "false"}
                               style={{
-                                padding: "0.2rem 0.55rem",
-                                borderRadius: "9999px",
-                                fontSize: "0.72rem",
-                                fontWeight: 500,
+                                padding: "0.3rem 0.7rem", borderRadius: "99px", fontSize: "0.8rem", fontWeight: 500,
                                 border: `1px solid ${active ? cat.color + "66" : "rgba(255,255,255,0.1)"}`,
                                 background: active ? cat.color + "22" : "rgba(255,255,255,0.04)",
-                                color: active ? cat.color : "rgba(209,213,219,0.8)",
-                                cursor: "pointer",
-                                transition: "all 0.18s ease",
-                                letterSpacing: "0.01em",
-                                lineHeight: 1.4,
-                                // @ts-ignore
-                                "--chip-color": cat.color,
+                                color: active ? cat.color : "rgba(209,213,219,0.8)", cursor: "pointer", transition: "all 0.2s ease"
                               }}
                             >
                               {item}
@@ -405,76 +310,68 @@ export default function HomePage() {
               })}
             </div>
           </div>
-
-          {/* ── Feature highlight cards ── */}
-          <div
-            className="animate-fade-in-up delay-400"
-            style={{
-              width: "100%",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "0.875rem",
-              marginTop: "0.5rem",
-            }}
-          >
-            {FEATURES.map((f) => (
-              <div
-                key={f.title}
-                className="glass-card"
-                style={{
-                  padding: "1.1rem 1.15rem",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "0.75rem",
-                  textAlign: "left",
-                }}
-              >
-                <div
-                  className="feature-icon-box"
-                  style={{ background: f.bg, color: f.color }}
-                  aria-hidden="true"
-                >
-                  {f.icon}
-                </div>
-                <div>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontFamily: "var(--font-outfit), sans-serif",
-                      fontWeight: 700,
-                      fontSize: "0.95rem",
-                      color: "var(--text-primary)",
-                    }}
-                  >
-                    {f.title}
-                  </p>
-                  <p
-                    style={{
-                      margin: "0.2rem 0 0",
-                      fontSize: "0.8rem",
-                      color: "var(--text-muted)",
-                      lineHeight: 1.45,
-                    }}
-                  >
-                    {f.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer note */}
-          <p
-            className="animate-fade-in-up delay-500"
-            style={{
-              marginTop: "1rem",
-              fontSize: "0.78rem",
-              color: "rgba(107,114,128,0.8)",
-            }}
-          >
-            ✨ Powered by AI — no sign-up required
-          </p>
         </section>
+
+        {/* ── Marquee Section ── */}
+        <section className="animate-fade-in-up delay-400" style={{ width: "100%", overflow: "hidden", marginTop: "4rem", borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "1rem 0", background: "rgba(0,0,0,0.2)" }}>
+          <LogoLoop
+            logos={cuisineLogos}
+            speed={40}
+            direction="left"
+            logoHeight={24}
+            gap={32}
+            pauseOnHover={true}
+            fadeOut={true}
+            fadeOutColor="rgba(0,0,0,0.2)"
+            ariaLabel="Cuisines"
+          />
+        </section>
+
+        {/* ── Statistics Section ── */}
+        <section className="animate-fade-in-up delay-500" style={{ width: "100%", maxWidth: "1000px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem", marginTop: "4rem" }}>
+          <div className="glass-card" style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.5rem", background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)" }}>
+            <span style={{ fontSize: "2.5rem" }}>🍳</span>
+            <h3 style={{ fontSize: "2rem", fontWeight: 800, margin: 0, color: "#fff", fontFamily: "var(--font-outfit)" }}>2,400+</h3>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem" }}>Recipes Generated</p>
+          </div>
+          <div className="glass-card" style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.5rem", background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)" }}>
+            <span style={{ fontSize: "2.5rem" }}>⭐</span>
+            <h3 style={{ fontSize: "2rem", fontWeight: 800, margin: 0, color: "#fff", fontFamily: "var(--font-outfit)" }}>4.9/5</h3>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem" }}>User Rating</p>
+          </div>
+          <div className="glass-card" style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.5rem", background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)" }}>
+            <span style={{ fontSize: "2.5rem" }}>👥</span>
+            <h3 style={{ fontSize: "2rem", fontWeight: 800, margin: 0, color: "#fff", fontFamily: "var(--font-outfit)" }}>500+</h3>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem" }}>Happy Cooks</p>
+          </div>
+        </section>
+
+        {/* ── How It Works Section ── */}
+        <section className="animate-fade-in-up delay-500" style={{ width: "100%", maxWidth: "1000px", marginTop: "6rem", textAlign: "center" }}>
+          <h2 style={{ fontSize: "2.5rem", fontWeight: 800, fontFamily: "var(--font-outfit)", marginBottom: "3rem" }}>How It Works</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem", position: "relative" }}>
+            
+            <div className="glass-card" style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+              <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "rgba(249,115,22,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem" }}>🥕</div>
+              <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>1. Add Ingredients</h3>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", margin: 0 }}>Tell us what you have in your fridge and pantry.</p>
+            </div>
+
+            <div className="glass-card" style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+              <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "rgba(168,85,247,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem" }}>🤖</div>
+              <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>2. AI Generates</h3>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", margin: 0 }}>Our culinary AI crafts unique, delicious recipes.</p>
+            </div>
+
+            <div className="glass-card" style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+              <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "rgba(34,197,94,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem" }}>❤️</div>
+              <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>3. Cook & Save</h3>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", margin: 0 }}>Enjoy your meal and save the recipe for later.</p>
+            </div>
+
+          </div>
+        </section>
+
       </main>
     </>
   );

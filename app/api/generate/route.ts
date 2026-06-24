@@ -22,7 +22,11 @@ Each recipe must have:
   difficulty: "Easy" | "Medium" | "Hard",
   servings: number,
   ingredients: string[],
-  steps: string[]
+  steps: string[],
+  confidenceScore: number,
+  cals: number,
+  protein: number,
+  carbs: number
 }
 Return only JSON, no extra text.`;
 
