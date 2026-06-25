@@ -149,11 +149,21 @@ function ResultsContent() {
         <div style={{ width: "100%", maxWidth: "1200px" }}>
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <h1 className="shimmer-text" style={{ fontFamily: "var(--font-outfit), sans-serif", fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 800, margin: 0 }}>
-              AI is thinking... 🤔
+              AI is crafting your recipes...
             </h1>
-            <p style={{ color: "var(--text-muted)", marginTop: "0.5rem", fontSize: "1.1rem" }}>
-              Crafting perfect recipes from: {ingredientsParam}
+            <p style={{ color: "var(--text-muted)", marginTop: "0.5rem", fontSize: "1.1rem", marginBottom: "1rem" }}>
+              Based on: {ingredientsParam}
             </p>
+            {/* Progress indicator */}
+            <div style={{ width: "200px", height: "4px", background: "rgba(255,255,255,0.1)", borderRadius: "99px", overflow: "hidden", margin: "0 auto" }}>
+              <div style={{ 
+                height: "100%", 
+                background: "linear-gradient(90deg, #f97316, #a855f7)", 
+                width: "50%", 
+                animation: "shimmer-loader 1.5s infinite linear",
+                backgroundSize: "200% 100%"
+              }} />
+            </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "2rem" }}>
             <SkeletonCard />
@@ -289,7 +299,7 @@ function ResultsContent() {
                       onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
                       onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "var(--text-muted)"; }}
                     >
-                      🔗 Share
+                      🔗 Share Recipe
                     </button>
                     <button 
                       onClick={() => window.print()}
@@ -297,7 +307,7 @@ function ResultsContent() {
                       onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
                       onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "var(--text-muted)"; }}
                     >
-                      🖨️ Print
+                      🖨️ Print Recipe
                     </button>
                   </div>
                 </div>

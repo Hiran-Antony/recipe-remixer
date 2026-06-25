@@ -68,9 +68,16 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [totalSaved, setTotalSaved] = useState<number | null>(null);
   const [openCats, setOpenCats] = useState<string[]>(["PROTEIN", "VEGETABLES"]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
+    const saved = localStorage.getItem('recentSearches');
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch (e) { }
+    }
     fetch('/api/recipes')
       .then(res => res.json())
       .then(data => {
@@ -104,10 +111,14 @@ export default function HomePage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = ingredients.trim();
-    if (!trimmed) {
-      toast.error("Please add ingredients", { icon: "🥕" });
+    if (currentIngredients.length < 2) {
+      toast.error("Please add at least 2 ingredients", { icon: "🥕" });
       return;
     }
+    const newRecent = [trimmed, ...recentSearches.filter(s => s !== trimmed)].slice(0, 5);
+    setRecentSearches(newRecent);
+    localStorage.setItem('recentSearches', JSON.stringify(newRecent));
+    
     setIsGenerating(true);
     router.push(`/results?ingredients=${encodeURIComponent(trimmed)}`);
   };
@@ -263,6 +274,39 @@ export default function HomePage() {
                 )}
               </button>
             </form>
+
+            {/* Recent Searches */}
+            {recentSearches.length > 0 && (
+              <div style={{ marginTop: "0.5rem" }}>
+                <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600, display: "block", marginBottom: "0.5rem" }}>Recent Searches:</span>
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  {recentSearches.map((search, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setIngredients(search);
+                        setIsGenerating(true);
+                        router.push(`/results?ingredients=${encodeURIComponent(search)}`);
+                      }}
+                      style={{
+                        padding: "0.3rem 0.8rem",
+                        background: "rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "99px",
+                        fontSize: "0.8rem",
+                        color: "rgba(255,255,255,0.8)",
+                        cursor: "pointer",
+                        transition: "all 0.2s"
+                      }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+                      onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                    >
+                      🕒 {search}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "18px", opacity: currentIngredients.length > 0 ? 1 : 0, transition: "opacity 0.2s ease" }}>
               <span style={{ fontSize: "0.8rem", color: "#fb923c", fontWeight: 600 }}>{currentIngredients.length} selected</span>

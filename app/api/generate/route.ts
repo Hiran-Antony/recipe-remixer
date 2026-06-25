@@ -33,19 +33,26 @@ Each recipe must have:
 }
 Return only JSON, no extra text.`;
 
-    const completion = await groq.chat.completions.create({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'llama-3.3-70b-versatile',
-    });
+    let attempts = 0;
+    while (attempts < 2) {
+      try {
+        const completion = await groq.chat.completions.create({
+          messages: [{ role: 'user', content: prompt }],
+          model: 'llama-3.3-70b-versatile',
+        });
 
-    let content = completion.choices[0]?.message?.content || '[]';
-    
-    // Clean markdown if present
-    content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+        let content = completion.choices[0]?.message?.content || '[]';
+        
+        // Clean markdown if present
+        content = content.replace(/```json/g, '').replace(/```/g, '').trim();
 
-    const recipes = JSON.parse(content);
-
-    return NextResponse.json({ recipes });
+        const recipes = JSON.parse(content);
+        return NextResponse.json({ recipes });
+      } catch (e) {
+        attempts++;
+        if (attempts === 2) throw e;
+      }
+    }
   } catch (error: any) {
     console.error("Error calling Groq:", error);
     return NextResponse.json({ error: "AI is busy, try again" }, { status: 500 });
