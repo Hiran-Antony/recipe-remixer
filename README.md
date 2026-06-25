@@ -3,6 +3,31 @@
 > AI-powered recipe generator — enter ingredients,
 > get personalized recipes instantly.
 
+## 🎯 One-Line Pitch
+Recipe Remixer lets you enter ingredients 
+you have so that you get instant AI-generated 
+recipe ideas without going to the store.
+
+## 👤 The User
+Someone who opens the fridge, sees random 
+ingredients, and has no idea what to cook.
+
+## 📊 The Data
+- Ingredient: { name, quantity }
+- Recipe: { title, ingredients[], steps[], 
+  difficulty, cookTime, servings, createdAt }
+
+## 🤖 The AI Feature
+The model takes a list of ingredients entered 
+by the user and returns 3 personalized recipe 
+suggestions with full cooking instructions.
+
+## 🖥️ Core Screens
+1. Home — enter ingredients + quick add chips
+2. Results — 3 AI generated recipe cards
+3. Saved — personal recipe collection
+4. Login — secure authentication
+
 ## 🌐 Live Demo
 https://reciperemixer.vercel.app
 
