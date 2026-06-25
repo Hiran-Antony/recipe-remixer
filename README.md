@@ -3,7 +3,7 @@ AI-powered recipe generator built with
 Next.js, MongoDB, and Groq LLM.
 
 ## Live Demo
-https://recipe-remixer.vercel.app
+https://reciperemixer.vercel.app
 
 ## Features
 - Real AI recipe generation (Groq/Llama3)
