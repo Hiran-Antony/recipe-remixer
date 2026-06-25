@@ -14,8 +14,7 @@ and has no idea what to cook.
 - Recipe: { title, ingredients[], steps, createdAt }
 
 ## AI Feature
-The model takes a list of ingredients entered by the user
-and returns 3 recipe suggestions with title and steps.
+User enters ingredients → Groq LLM (llama3-70b-8192) generates 3 personalized recipes → displayed in UI
 
 ## Core Screens
 1. Home — enter ingredients

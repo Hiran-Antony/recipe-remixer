@@ -7,6 +7,9 @@ import { toast } from "react-hot-toast";
 
 interface RecipeData {
   title: string;
+  description?: string;
+  cuisineType?: string;
+  prepTime?: string;
   ingredients: string[];
   steps: string[];
   cookTime: string;
@@ -223,9 +226,17 @@ function ResultsContent() {
                   </span>
                 </div>
 
+                {recipe.description && (
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: 1.5, margin: 0 }}>
+                    {recipe.description}
+                  </p>
+                )}
+
                 {/* Meta Info */}
-                <div style={{ display: "flex", gap: "1rem", fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>⏱️ {recipe.cookTime}</span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>
+                  {recipe.cuisineType && <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>🌎 {recipe.cuisineType}</span>}
+                  {recipe.prepTime && <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>🔪 Prep: {recipe.prepTime}</span>}
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>⏱️ Cook: {recipe.cookTime}</span>
                   <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>🍽️ {recipe.servings} Servings</span>
                 </div>
 
@@ -294,6 +305,28 @@ function ResultsContent() {
             </div>
             );
           })}
+        </div>
+
+        {/* Try Another Search Button */}
+        <div style={{ marginTop: "4rem", display: "flex", justifyContent: "center" }}>
+          <button 
+            onClick={() => router.push("/")}
+            style={{ 
+              padding: "1rem 2.5rem", 
+              fontSize: "1.1rem", 
+              fontWeight: 600,
+              background: "rgba(255,255,255,0.05)", 
+              border: "1px solid rgba(255,255,255,0.1)", 
+              borderRadius: "99px",
+              color: "#fff",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+            onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+          >
+            🔍 Try Another Search
+          </button>
         </div>
       </div>
     </main>
