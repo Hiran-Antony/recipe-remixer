@@ -48,6 +48,7 @@ function ResultsContent() {
   const [loading, setLoading] = useState(true);
   const [recipes, setRecipes] = useState<RecipeData[]>([]);
   const [savingIdx, setSavingIdx] = useState<number | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!ingredientsParam) {
@@ -66,9 +67,8 @@ function ResultsContent() {
           body: JSON.stringify({ ingredients: ingredientsParam })
         });
         
-        if (!res.ok) throw new Error("Failed to generate recipes");
-        
         const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to generate recipes");
         
         if (!isMounted) return;
 
@@ -84,7 +84,7 @@ function ResultsContent() {
         }, remainingDelay);
       } catch (err: any) {
         console.error("Error generating recipes:", err);
-        toast.error("AI is busy, try again", { icon: "⚠️" });
+        setErrorMsg(err.message || "Something went wrong");
         if (!isMounted) return;
         const elapsed = Date.now() - start;
         const remainingDelay = Math.max(0, 2500 - elapsed);
@@ -143,6 +143,27 @@ function ResultsContent() {
     }
   };
 
+  if (errorMsg) {
+    return (
+      <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "4rem 1rem" }}>
+        <div className="glass-card animate-fade-in-up" style={{ padding: "2.5rem", maxWidth: "500px", textAlign: "center", border: "1px solid rgba(239,68,68,0.5)", background: "rgba(239,68,68,0.1)" }}>
+          <div style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>⚠️</div>
+          <h2 style={{ fontSize: "1.5rem", color: "#ef4444", marginBottom: "1rem", fontFamily: "var(--font-outfit)" }}>Something went wrong</h2>
+          <p style={{ color: "rgba(255,255,255,0.9)", marginBottom: "2rem", lineHeight: 1.5 }}>
+            {errorMsg}
+          </p>
+          <button 
+            onClick={() => router.push("/")} 
+            className="btn-primary" 
+            style={{ background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)", padding: "1rem 2.5rem" }}
+          >
+            🔄 Try Again
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   if (loading) {
     return (
       <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", padding: "4rem 1rem" }}>
@@ -187,8 +208,15 @@ function ResultsContent() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "2.5rem" }}>
-          {recipes.map((recipe, idx) => {
+        {recipes.length === 0 ? (
+          <div className="glass-card animate-fade-in-up" style={{ padding: "3rem", textAlign: "center", maxWidth: "600px", margin: "0 auto", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <span style={{ fontSize: "3rem", display: "block", marginBottom: "1rem" }}>👨‍🍳</span>
+            <h2 style={{ fontSize: "1.5rem", color: "#fff", marginBottom: "0.5rem" }}>No recipes found</h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>We couldn't generate recipes for those ingredients. Try adding a few more common ingredients!</p>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "2.5rem" }}>
+            {recipes.map((recipe, idx) => {
             const confidenceScore = recipe.confidenceScore || 95;
             const cals = recipe.cals || 350;
             const protein = recipe.protein || 20;
@@ -317,6 +345,7 @@ function ResultsContent() {
             );
           })}
         </div>
+        )}
 
         {/* Try Another Search Button */}
         <div style={{ marginTop: "4rem", display: "flex", justifyContent: "center" }}>
