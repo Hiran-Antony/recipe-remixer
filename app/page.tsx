@@ -3,6 +3,7 @@
 import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { toast } from "react-hot-toast";
 import LogoLoop from "@/components/LogoLoop";
 
 const SoftAurora = dynamic(() => import("@/components/SoftAurora"), {
@@ -103,7 +104,10 @@ export default function HomePage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = ingredients.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      toast.error("Please add ingredients", { icon: "🥕" });
+      return;
+    }
     setIsGenerating(true);
     router.push(`/results?ingredients=${encodeURIComponent(trimmed)}`);
   };
@@ -160,7 +164,7 @@ export default function HomePage() {
             }}
           >
             <span style={{ fontSize: "1rem" }}>✨</span>
-            <span style={{ fontWeight: 800 }}>{totalSaved !== null ? totalSaved + 142 : "420+"}</span> Recipes Generated Today
+            <span style={{ fontWeight: 800 }}>{totalSaved !== null ? totalSaved : "0"}</span> Recipes in Your Collection
           </div>
 
           {/* Title */}
@@ -327,24 +331,6 @@ export default function HomePage() {
           />
         </section>
 
-        {/* ── Statistics Section ── */}
-        <section className="animate-fade-in-up delay-500" style={{ width: "100%", maxWidth: "1000px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem", marginTop: "4rem" }}>
-          <div className="glass-card" style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.5rem", background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)" }}>
-            <span style={{ fontSize: "2.5rem" }}>🍳</span>
-            <h3 style={{ fontSize: "2rem", fontWeight: 800, margin: 0, color: "#fff", fontFamily: "var(--font-outfit)" }}>2,400+</h3>
-            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem" }}>Recipes Generated</p>
-          </div>
-          <div className="glass-card" style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.5rem", background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)" }}>
-            <span style={{ fontSize: "2.5rem" }}>⭐</span>
-            <h3 style={{ fontSize: "2rem", fontWeight: 800, margin: 0, color: "#fff", fontFamily: "var(--font-outfit)" }}>4.9/5</h3>
-            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem" }}>User Rating</p>
-          </div>
-          <div className="glass-card" style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.5rem", background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)" }}>
-            <span style={{ fontSize: "2.5rem" }}>👥</span>
-            <h3 style={{ fontSize: "2rem", fontWeight: 800, margin: 0, color: "#fff", fontFamily: "var(--font-outfit)" }}>500+</h3>
-            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem" }}>Happy Cooks</p>
-          </div>
-        </section>
 
         {/* ── How It Works Section ── */}
         <section className="animate-fade-in-up delay-500" style={{ width: "100%", maxWidth: "1000px", marginTop: "6rem", textAlign: "center" }}>

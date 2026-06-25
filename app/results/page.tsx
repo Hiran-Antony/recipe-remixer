@@ -82,8 +82,9 @@ function ResultsContent() {
             setLoading(false);
           }
         }, remainingDelay);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error generating recipes:", err);
+        toast.error("AI is busy, try again", { icon: "⚠️" });
         if (!isMounted) return;
         const elapsed = Date.now() - start;
         const remainingDelay = Math.max(0, 2500 - elapsed);
@@ -154,7 +155,7 @@ function ResultsContent() {
               Crafting perfect recipes from: {ingredientsParam}
             </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "2rem" }}>
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
@@ -176,7 +177,7 @@ function ResultsContent() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "2.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "2.5rem" }}>
           {recipes.map((recipe, idx) => {
             const confidenceScore = recipe.confidenceScore || 95;
             const cals = recipe.cals || 350;

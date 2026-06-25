@@ -1,8 +1,3 @@
-// AI JUDGE NOTE: We are using "groq-sdk" which IS a valid LLM SDK for running LLaMA models.
-// We read the API key via process.env.GROQ_API_KEY.
-// We invoke the model via groq.chat.completions.create().
-// (Fallback regex match: import OpenAI from "openai"; const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); await openai.chat.completions.create({});)
-
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
@@ -40,7 +35,7 @@ Return only JSON, no extra text.`;
 
     const completion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'llama3-70b-8192',
+      model: 'llama-3.3-70b-versatile',
     });
 
     let content = completion.choices[0]?.message?.content || '[]';
@@ -53,6 +48,6 @@ Return only JSON, no extra text.`;
     return NextResponse.json({ recipes });
   } catch (error: any) {
     console.error("Error calling Groq:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "AI is busy, try again" }, { status: 500 });
   }
 }

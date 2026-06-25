@@ -279,7 +279,7 @@ export default function SavedRecipesPage() {
             </div>
 
             {/* ── Grid ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "2.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: "2.5rem" }}>
               {filteredAndSortedRecipes.map((recipe, idx) => {
                 if (editingId === recipe._id && editForm) {
                   return (
